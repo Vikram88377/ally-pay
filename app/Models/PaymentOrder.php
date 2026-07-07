@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\WebhookEvent;
 class PaymentOrder extends Model
 {
     protected $fillable = [
@@ -29,4 +29,9 @@ class PaymentOrder extends Model
     {
         return $this->belongsTo(Merchant::class);
     }
+
+    public function webhookEvents()
+{
+    return $this->hasMany(WebhookEvent::class);
+}
 }

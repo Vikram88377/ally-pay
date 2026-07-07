@@ -10,6 +10,15 @@ use App\Http\Controllers\Api\V1\MerchantApiKeyController;
 use App\Http\Controllers\Api\V1\PaymentOrderController;
 
 
+
+
+Route::post('/test-webhook', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Webhook received successfully',
+        'data' => $request->all()
+    ]);
+});
 Route::prefix('v1')->group(function () {
 
     Route::post('/register', [AuthController::class, 'register']);

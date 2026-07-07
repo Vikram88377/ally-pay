@@ -6,13 +6,13 @@ use App\Interfaces\PaymentOrderRepositoryInterface;
 use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\DB;
-
+use App\Services\WebhookService;
 class PaymentOrderService
 {
-    public function __construct(
-        protected PaymentOrderRepositoryInterface $paymentOrderRepository
-    ) {}
-
+        public function __construct(
+            protected PaymentOrderRepositoryInterface $paymentOrderRepository,
+            protected WebhookService $webhookService
+        ) {}
     public function createOrder($merchant, array $data)
     {
         $data['merchant_id'] = $merchant->id;
@@ -41,6 +41,7 @@ class PaymentOrderService
             'payment_reference' => $data['payment_reference'],
             'paid_at' => $data['status'] === 'success' ? now() : null,
         ]);
+        $this->webhookService->dispatchPaymentWebhook($order);
 
         return $order;
     });
