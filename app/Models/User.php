@@ -10,9 +10,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Wallet;
+use App\Models\Merchant;
 
 class User extends Authenticatable
 {
+
+        protected $guard_name = 'api';
     /** @use HasFactory<UserFactory> */
     use HasApiTokens,HasFactory, HasRoles,Notifiable;
 
@@ -54,7 +57,10 @@ class User extends Authenticatable
 {
     return $this->hasOne(Wallet::class);
 }
-
+                public function merchant()
+{
+    return $this->hasOne(Merchant::class);
+}
 
 
 }

@@ -4,6 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\WalletController;
+use App\Http\Controllers\Api\V1\MerchantController;
+use App\Http\Controllers\Api\V1\Admin\MerchantController as AdminMerchantController;
+
+
+
+
 Route::prefix('v1')->group(function () {
 
     Route::post('/register', [AuthController::class, 'register']);
@@ -17,6 +23,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/wallet/deduct-money', [WalletController::class, 'deductMoney']);
     Route::get('/wallet/history', [WalletController::class, 'history']);
     Route::post('/wallet/transfer', [WalletController::class, 'transfer']);
+    Route::post('/merchant/apply', [MerchantController::class, 'apply']);
+    Route::get('/merchant/me', [MerchantController::class, 'myMerchant']);
     });
 
         Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function () {
@@ -24,7 +32,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
 
         Route::post('/users/{user}/assign-role', [UserController::class, 'assignRole']);
-
+        Route::get('/merchants', [AdminMerchantController::class, 'index']);
+    Route::patch('/merchants/{id}/status', [AdminMerchantController::class, 'updateStatus']);
     });
 
 });

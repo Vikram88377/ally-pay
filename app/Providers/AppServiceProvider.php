@@ -7,6 +7,9 @@ use App\Interfaces\UserRepositoryInterface;
 use App\Repositories\UserRepository;
 use App\Interfaces\WalletRepositoryInterface;
 use App\Repositories\WalletRepository;
+use App\Interfaces\MerchantRepositoryInterface;
+use App\Repositories\MerchantRepository;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
     $this->app->bind(
     WalletRepositoryInterface::class,
     WalletRepository::class
+);
+
+        $this->app->bind(
+    MerchantRepositoryInterface::class,
+    MerchantRepository::class
 );
 
     }
