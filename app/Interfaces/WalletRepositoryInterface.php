@@ -9,4 +9,5 @@ interface WalletRepositoryInterface
     public function lockByUserId(int $userId);
     public function createTransaction(array $data);
     public function transactions(int $userId);
+    public function lockByWalletId(int $walletId);
 }

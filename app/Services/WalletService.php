@@ -96,4 +96,68 @@ class WalletService
 {
     return $this->walletRepository->transactions($userId);
 }
+
+
+            public function transferMoney(int $senderId, int $receiverId, float $amount)
+{
+    if ($senderId === $receiverId) {
+        throw new Exception('You cannot transfer money to yourself');
+    }
+
+    return DB::transaction(function () use ($senderId, $receiverId, $amount) {
+
+        $senderWallet = $this->walletRepository->lockByUserId($senderId);
+
+        if (!$senderWallet) {
+            throw new Exception('Sender wallet not found');
+        }
+
+        if ($senderWallet->balance < $amount) {
+            throw new Exception('Insufficient wallet balance');
+        }
+
+        $receiverWallet = $this->walletRepository->lockByUserId($receiverId);
+
+        if (!$receiverWallet) {
+            $receiverWallet = $this->walletRepository->create([
+                'user_id' => $receiverId,
+                'balance' => 0
+            ]);
+        }
+
+        $referenceId = 'TR-' . time();
+
+        $senderWallet->balance -= $amount;
+        $senderWallet->save();
+
+        $this->walletRepository->createTransaction([
+            'wallet_id' => $senderWallet->id,
+            'type' => 'debit',
+            'amount' => $amount,
+            'balance_after' => $senderWallet->balance,
+            'reference_id' => $referenceId,
+            'status' => 'success',
+        ]);
+
+        $receiverWallet->balance += $amount;
+        $receiverWallet->save();
+
+        $this->walletRepository->createTransaction([
+            'wallet_id' => $receiverWallet->id,
+            'type' => 'credit',
+            'amount' => $amount,
+            'balance_after' => $receiverWallet->balance,
+            'reference_id' => $referenceId,
+            'status' => 'success',
+        ]);
+
+        return [
+            'sender_wallet' => $senderWallet,
+            'receiver_wallet' => $receiverWallet,
+            'reference_id' => $referenceId,
+        ];
+    });
+}
+
+
 }

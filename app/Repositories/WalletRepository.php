@@ -39,4 +39,14 @@ class WalletRepository implements WalletRepositoryInterface
     ->latest()
     ->paginate(10);
 }
+
+
+        public function lockByWalletId(int $walletId)
+{
+    return Wallet::where('id', $walletId)
+        ->lockForUpdate()
+        ->first();
+}
+
+
 }

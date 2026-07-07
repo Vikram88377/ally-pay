@@ -16,6 +16,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/wallet/add-money', [WalletController::class, 'addMoney']);
     Route::post('/wallet/deduct-money', [WalletController::class, 'deductMoney']);
     Route::get('/wallet/history', [WalletController::class, 'history']);
+    Route::post('/wallet/transfer', [WalletController::class, 'transfer']);
     });
 
         Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function () {

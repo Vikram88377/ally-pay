@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Wallet\AddMoneyRequest;
 use App\Http\Requests\Wallet\DeductMoneyRequest;
+use App\Http\Requests\Wallet\TransferMoneyRequest;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Exception;
@@ -72,4 +73,30 @@ class WalletController extends Controller
         'data' => $transactions,
     ]);
 }
+
+
+            public function transfer(TransferMoneyRequest $request)
+{
+    try {
+        $result = $this->walletService->transferMoney(
+            $request->user()->id,
+            $request->receiver_id,
+            $request->amount
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Money transferred successfully',
+            'data' => $result,
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 400);
+    }
+}
+
+
 }
