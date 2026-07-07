@@ -9,7 +9,8 @@ use App\Interfaces\WalletRepositoryInterface;
 use App\Repositories\WalletRepository;
 use App\Interfaces\MerchantRepositoryInterface;
 use App\Repositories\MerchantRepository;
-
+use App\Interfaces\MerchantApiKeyRepositoryInterface;
+use App\Repositories\MerchantApiKeyRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
     MerchantRepository::class
 );
 
+        $this->app->bind(
+    MerchantApiKeyRepositoryInterface::class,
+    MerchantApiKeyRepository::class
+);
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\MerchantApiKey;
 class Merchant extends Model
 {
     protected $fillable = [
@@ -20,4 +20,8 @@ class Merchant extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function apiKeys()
+{
+    return $this->hasMany(MerchantApiKey::class);
+}
 }
