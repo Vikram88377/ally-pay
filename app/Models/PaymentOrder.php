@@ -17,6 +17,8 @@ class PaymentOrder extends Model
         'customer_phone',
         'callback_url',
         'metadata',
+        'payment_reference',
+        'paid_at',
     ];
 
     protected $casts = [

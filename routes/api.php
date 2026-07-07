@@ -17,6 +17,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('merchant.api')->group(function () {
         Route::post('/payment-orders', [PaymentOrderController::class, 'store']);
+        Route::post('/payment-orders/verify', [PaymentOrderController::class, 'verify']);
     });
 
     Route::middleware('auth:api')->group(function () {

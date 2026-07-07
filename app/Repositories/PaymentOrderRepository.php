@@ -11,4 +11,9 @@ class PaymentOrderRepository implements PaymentOrderRepositoryInterface
     {
         return PaymentOrder::create($data);
     }
+
+    public function findByOrderId(string $orderId)
+{
+    return PaymentOrder::where('order_id', $orderId)->firstOrFail();
+}
 }
