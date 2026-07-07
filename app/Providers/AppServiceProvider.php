@@ -11,6 +11,8 @@ use App\Interfaces\MerchantRepositoryInterface;
 use App\Repositories\MerchantRepository;
 use App\Interfaces\MerchantApiKeyRepositoryInterface;
 use App\Repositories\MerchantApiKeyRepository;
+use App\Interfaces\PaymentOrderRepositoryInterface;
+use App\Repositories\PaymentOrderRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
     MerchantApiKeyRepositoryInterface::class,
     MerchantApiKeyRepository::class
 );
+
+
+        $this->app->bind(
+            PaymentOrderRepositoryInterface::class,
+            PaymentOrderRepository::class
+        );
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MerchantApiKey;
+use App\Models\PaymentOrder;
 class Merchant extends Model
 {
     protected $fillable = [
@@ -24,4 +25,11 @@ class Merchant extends Model
 {
     return $this->hasMany(MerchantApiKey::class);
 }
+
+public function paymentOrders()
+{
+    return $this->hasMany(PaymentOrder::class);
+}
+
+
 }
