@@ -17,7 +17,7 @@ class AuthService
         $data['password'] = Hash::make($data['password']);
 
         $user = $this->userRepository->create($data);
-
+            $user->assignRole('customer');
         $token = $user->createToken('AllyPayAuthToken')->accessToken;
 
         return [
@@ -35,6 +35,7 @@ class AuthService
                 'email' => ['Invalid email or password']
             ]);
         }
+
 
         $token = $user->createToken('AllyPayAuthToken')->accessToken;
 
