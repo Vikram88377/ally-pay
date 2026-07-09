@@ -11,7 +11,7 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link text-white" href="#">Merchants</a>
+          <a class="nav-link text-white" href="{{ route('admin.merchants.index') }}">Merchants</a>
         </li>
 
         <li class="nav-item">
