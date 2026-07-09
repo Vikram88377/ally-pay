@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\Admin\AuthController;
 use App\Http\Controllers\Web\Admin\UserController;
 use App\Http\Controllers\Web\Admin\MerchantController;
 use App\Http\Controllers\Web\Admin\PaymentOrderController;
+use App\Http\Controllers\Web\Admin\WalletController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -28,7 +29,8 @@ Route::post('/merchants/{merchant}/status', [MerchantController::class, 'updateS
 Route::post('/users/{user}/assign-role', [UserController::class, 'assignRole'])->name('users.assign-role');
 Route::get('/payments', [PaymentOrderController::class, 'index'])->name('payments.index');
 Route::get('/payments/{paymentOrder}', [PaymentOrderController::class, 'show'])->name('payments.show');
-
+Route::get('/wallets', [WalletController::class, 'index'])->name('wallets.index');
+Route::get('/wallet-transactions', [WalletController::class, 'transactions'])->name('wallets.transactions');
 Route::middleware(['auth', 'admin.web'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

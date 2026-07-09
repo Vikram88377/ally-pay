@@ -20,6 +20,9 @@
 </a>
         </li>
 
+                        <li class="nav-item">
+          <a class="nav-link text-white" href="{{ route('admin.wallets.index') }}">Wallets</a>
+        </li>
         <li class="nav-item">
             <a class="nav-link text-white" href="#">Webhooks</a>
         </li>
