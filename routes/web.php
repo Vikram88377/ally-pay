@@ -7,6 +7,8 @@ use App\Http\Controllers\Web\Admin\UserController;
 use App\Http\Controllers\Web\Admin\MerchantController;
 use App\Http\Controllers\Web\Admin\PaymentOrderController;
 use App\Http\Controllers\Web\Admin\WalletController;
+use App\Http\Controllers\Web\Admin\WebhookController;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -31,6 +33,11 @@ Route::get('/payments', [PaymentOrderController::class, 'index'])->name('payment
 Route::get('/payments/{paymentOrder}', [PaymentOrderController::class, 'show'])->name('payments.show');
 Route::get('/wallets', [WalletController::class, 'index'])->name('wallets.index');
 Route::get('/wallet-transactions', [WalletController::class, 'transactions'])->name('wallets.transactions');
+Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
+Route::get('/webhooks/{webhookEvent}', [WebhookController::class, 'show'])->name('webhooks.show');
+Route::post('/webhooks/{webhookEvent}/retry', [WebhookController::class, 'retry'])
+    ->name('webhooks.retry');
+
 Route::middleware(['auth', 'admin.web'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
