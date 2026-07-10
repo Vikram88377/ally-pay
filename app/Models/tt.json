@@ -1,0 +1,12 @@
+{
+    "success": true,
+    "message": "Merchant API key generated successfully",
+    "data": {
+        "id": 3,
+        "merchant_id": 1,
+        "public_key": "pk_test_TRHgkTAjhEa9KJp2HdXTym8UKI6Vw4Op",
+        "secret_key": "sk_test_cq5WG0wJThPMUARSTeesClaxDFsSzlifHiiYPJ5A",
+        "is_active": true,
+        "created_at": "2026-07-10T06:52:22.000000Z"
+    }
+}

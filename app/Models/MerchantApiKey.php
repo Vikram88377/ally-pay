@@ -17,4 +17,9 @@ class MerchantApiKey extends Model
     {
         return $this->belongsTo(Merchant::class);
     }
+
+        protected $hidden = [
+    'secret_key',
+];
+
 }

@@ -10,7 +10,14 @@ use App\Exceptions\InsufficientBalanceException;
 use App\Exceptions\WalletNotFoundException;
 use App\Exceptions\MerchantNotApprovedException;
 use Illuminate\Http\Request;
+use App\Http\Middleware\SecurityHeaders;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+          $middleware->append(SecurityHeaders::class);
       $middleware->alias([
         'role' => RoleMiddleware::class,
            'merchant.api' => VerifyMerchantApiKey::class,
@@ -27,39 +35,93 @@ return Application::configure(basePath: dirname(__DIR__))
     ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-         $exceptions->render(function (
-        InsufficientBalanceException $e,
+          $exceptions->render(function (
+        AuthenticationException $e,
         Request $request
     ) {
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+                'message' => 'Unauthenticated',
+            ], 401);
         }
     });
 
     $exceptions->render(function (
-        WalletNotFoundException $e,
+        ValidationException $e,
         Request $request
     ) {
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+    });
+
+    $exceptions->render(function (
+        ModelNotFoundException $e,
+        Request $request
+    ) {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Resource not found',
             ], 404);
         }
     });
 
     $exceptions->render(function (
-        MerchantNotApprovedException $e,
+        NotFoundHttpException $e,
         Request $request
     ) {
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'API route not found',
+            ], 404);
+        }
+    });
+
+    $exceptions->render(function (
+        AccessDeniedHttpException $e,
+        Request $request
+    ) {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to perform this action',
             ], 403);
+        }
+    });
+
+    $exceptions->render(function (
+        TooManyRequestsHttpException $e,
+        Request $request
+    ) {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Too many requests. Please try again later',
+            ], 429);
+        }
+    });
+
+    $exceptions->render(function (
+        Throwable $e,
+        Request $request
+    ) {
+        if ($request->expectsJson()) {
+
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => app()->isProduction()
+                    ? 'Internal server error'
+                    : $e->getMessage(),
+            ], 500);
         }
     });
     })->create();
