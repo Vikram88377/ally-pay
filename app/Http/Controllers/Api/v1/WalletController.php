@@ -9,9 +9,11 @@ use App\Http\Requests\Wallet\TransferMoneyRequest;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Exception;
+use App\Traits\ApiResponseTrait;
 
 class WalletController extends Controller
 {
+    use ApiResponseTrait;
     public function __construct(
         protected WalletService $walletService
     ) {}
@@ -20,11 +22,10 @@ class WalletController extends Controller
     {
         $wallet = $this->walletService->getBalance($request->user()->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Wallet balance fetched successfully',
-            'data' => $wallet,
-        ]);
+            return $this->successResponse(
+                $wallet,
+                'Wallet balance fetched successfully'
+            );
     }
 
     public function addMoney(AddMoneyRequest $request)
@@ -49,16 +50,16 @@ class WalletController extends Controller
                 $request->amount
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Money deducted successfully',
-                'data' => $wallet,
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+        return $this->successResponse(
+            $wallet,
+            'Money added successfully'
+        );
+        } catch(Exception $e){
+
+        return $this->errorResponse(
+            $e->getMessage(),
+            400
+        );
         }
     }
 

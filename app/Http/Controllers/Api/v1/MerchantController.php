@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Merchant\CreateMerchantRequest;
 use App\Services\MerchantService;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponseTrait;
 use Exception;
 
 class MerchantController extends Controller
 {
+    use ApiResponseTrait;
     public function __construct(
         protected MerchantService $merchantService
     ) {}
@@ -22,17 +24,17 @@ class MerchantController extends Controller
                 $request->validated()
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Merchant application submitted successfully',
-                'data' => $merchant,
-            ], 201);
+                return $this->successResponse(
+                    $merchant,
+                    'Merchant application submitted successfully',
+                    201
+                );
 
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+                return $this->errorResponse(
+                    $e->getMessage(),
+                    400
+                );
         }
     }
 
@@ -40,10 +42,9 @@ class MerchantController extends Controller
     {
         $merchant = $this->merchantService->myMerchant($request->user()->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Merchant profile fetched successfully',
-            'data' => $merchant,
-        ]);
+                return $this->successResponse(
+                    $merchant,
+                    'Merchant profile fetched successfully'
+                );
     }
 }

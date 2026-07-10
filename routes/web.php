@@ -8,6 +8,10 @@ use App\Http\Controllers\Web\Admin\MerchantController;
 use App\Http\Controllers\Web\Admin\PaymentOrderController;
 use App\Http\Controllers\Web\Admin\WalletController;
 use App\Http\Controllers\Web\Admin\WebhookController;
+use App\Http\Controllers\Web\Admin\AuditLogController;
+use App\Http\Controllers\Web\Admin\ReportController;
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,6 +23,12 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::prefix('admin')->name('admin.')->group(function () {
+
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])
+    ->name('audit-logs.index');
+
+Route::get('/audit-logs/{auditLog}', [AuditLogController::class, 'show'])
+    ->name('audit-logs.show');
 
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
@@ -37,7 +47,18 @@ Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks.ind
 Route::get('/webhooks/{webhookEvent}', [WebhookController::class, 'show'])->name('webhooks.show');
 Route::post('/webhooks/{webhookEvent}/retry', [WebhookController::class, 'retry'])
     ->name('webhooks.retry');
+Route::get('/reports/payments', [ReportController::class, 'payments'])
+    ->name('reports.payments');
 
+Route::get('/reports/payments/export', [ReportController::class, 'exportPayments'])
+    ->name('reports.payments.export');
+
+Route::get('/reports/transactions', [ReportController::class, 'transactions'])
+    ->name('reports.transactions');
+
+Route::get('/reports/transactions/export', [ReportController::class, 'exportTransactions'])
+    ->name('reports.transactions.export');
+    
 Route::middleware(['auth', 'admin.web'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

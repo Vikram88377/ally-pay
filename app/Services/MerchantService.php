@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Interfaces\MerchantRepositoryInterface;
+use App\Traits\AuditLogTrait;
 use Exception;
 
 class MerchantService
 {
+    use AuditLogTrait;
     public function __construct(
         protected MerchantRepositoryInterface $merchantRepository
     ) {}
@@ -35,8 +37,30 @@ class MerchantService
         return $this->merchantRepository->list();
     }
 
-    public function updateStatus(int $merchantId, array $data)
-    {
-        return $this->merchantRepository->updateStatus($merchantId, $data);
-    }
+                public function updateStatus(int $merchantId, array $data)
+                {
+                    $merchant = $this->merchantRepository->findById($merchantId);
+
+                    $oldValues = [
+                        'status' => $merchant->status,
+                        'remarks' => $merchant->remarks,
+                    ];
+
+                    $merchant = $this->merchantRepository->updateStatus(
+                        $merchantId,
+                        $data
+                    );
+
+                    $this->logAudit(
+                        'MERCHANT_STATUS_UPDATED',
+                        $merchant,
+                        $oldValues,
+                        [
+                            'status' => $merchant->status,
+                            'remarks' => $merchant->remarks,
+                        ]
+                    );
+
+                    return $merchant;
+                }
 }

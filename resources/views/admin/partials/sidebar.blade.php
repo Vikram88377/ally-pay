@@ -28,6 +28,32 @@
     Webhooks
 </a>
         </li>
+
+            <li class="nav-item"><a class="nav-link text-white" href="{{ route('admin.audit-logs.index') }}">
+        Audit Logs
+    </a>
+</li>
+
+                    <li class="nav-item mt-3">
+                        <span class="text-secondary">
+                            Reports
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white"
+                        href="{{ route('admin.reports.payments') }}">
+                            Payment Report
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white"
+                        href="{{ route('admin.reports.transactions') }}">
+                            Wallet Report
+                        </a>
+                    </li>
+
     </ul>
 
  

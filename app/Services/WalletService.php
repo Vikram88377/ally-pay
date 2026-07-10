@@ -5,9 +5,13 @@ namespace App\Services;
 use App\Interfaces\WalletRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Exception;
-
+use App\Exceptions\InsufficientBalanceException;
+use App\Exceptions\WalletNotFoundException;
+use App\Helpers\ReferenceHelper;
+use App\Traits\AuditLogTrait;
 class WalletService
 {
+    use AuditLogTrait;
     public function __construct(
         protected WalletRepositoryInterface $walletRepository
     ) {}
@@ -52,9 +56,21 @@ class WalletService
                 'type' => 'credit',
                 'amount' => $amount,
                 'balance_after' => $wallet->balance,
-                'reference_id' => 'CR-' . time(),
+                'reference_id' => ReferenceHelper::generate('CR'),
                 'status' => 'success',
             ]);
+
+                $this->logAudit(
+                'WALLET_MONEY_ADDED',
+                $wallet,
+                [
+                    'balance' => $wallet->balance - $amount,
+                ],
+                [
+                    'balance' => $wallet->balance,
+                    'amount' => $amount,
+                ]
+            );
 
             return $wallet;
         });
@@ -67,11 +83,11 @@ class WalletService
             $wallet = $this->walletRepository->lockByUserId($userId);
 
             if (!$wallet) {
-                throw new Exception('Wallet not found');
+                throw new WalletNotFoundException();
             }
 
             if ($wallet->balance < $amount) {
-                throw new Exception('Insufficient wallet balance');
+            throw new InsufficientBalanceException();
             }
 
             $wallet->balance -= $amount;
@@ -82,9 +98,21 @@ class WalletService
                 'type' => 'debit',
                 'amount' => $amount,
                 'balance_after' => $wallet->balance,
-                'reference_id' => 'DR-' . time(),
+                'reference_id' => ReferenceHelper::generate('DR'),
                 'status' => 'success',
             ]);
+
+                            $this->logAudit(
+                    'WALLET_MONEY_DEDUCTED',
+                    $wallet,
+                    [
+                        'balance' => $wallet->balance + $amount,
+                    ],
+                    [
+                        'balance' => $wallet->balance,
+                        'amount' => $amount,
+                    ]
+                );
 
             return $wallet;
         });
@@ -125,7 +153,7 @@ class WalletService
             ]);
         }
 
-        $referenceId = 'TR-' . time();
+        $referenceId = ReferenceHelper::generate('TR');
 
         $senderWallet->balance -= $amount;
         $senderWallet->save();
@@ -151,6 +179,16 @@ class WalletService
             'status' => 'success',
         ]);
 
+                    $this->logAudit(
+                'WALLET_MONEY_TRANSFERRED',
+                $senderWallet,
+                [],
+                [
+                    'receiver_wallet_id' => $receiverWallet->id,
+                    'amount' => $amount,
+                    'reference_id' => $referenceId,
+                ]
+            );
         return [
             'sender_wallet' => $senderWallet,
             'receiver_wallet' => $receiverWallet,

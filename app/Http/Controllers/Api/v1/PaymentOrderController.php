@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\CreatePaymentOrderRequest;
 use App\Services\PaymentOrderService;
 use App\Http\Requests\Payment\VerifyPaymentRequest;
+use App\Traits\ApiResponseTrait;
 use Exception;
 class PaymentOrderController extends Controller
 {
+    use ApiResponseTrait;
     public function __construct(
         protected PaymentOrderService $paymentOrderService
     ) {}
@@ -20,11 +22,11 @@ class PaymentOrderController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment order created successfully',
-            'data' => $order,
-        ], 201);
+                return $this->successResponse(
+                    $order,
+                    'Payment order created successfully',
+                    201
+                );
     }
 
 
@@ -36,17 +38,16 @@ class PaymentOrderController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment verified successfully',
-            'data' => $order,
-        ]);
+                return $this->successResponse(
+                    $order,
+                    'Payment verified successfully'
+                );
 
     } catch (Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-        ], 400);
+                return $this->errorResponse(
+                    $e->getMessage(),
+                    400
+                );
     }
 }
 }

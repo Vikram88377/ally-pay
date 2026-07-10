@@ -2,48 +2,90 @@
 
 namespace App\Services;
 
+use App\Helpers\ReferenceHelper;
 use App\Interfaces\PaymentOrderRepositoryInterface;
-use Illuminate\Support\Str;
+use App\Traits\AuditLogTrait;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use App\Services\WebhookService;
+
 class PaymentOrderService
 {
-        public function __construct(
-            protected PaymentOrderRepositoryInterface $paymentOrderRepository,
-            protected WebhookService $webhookService
-        ) {}
+    use AuditLogTrait;
+
+    public function __construct(
+        protected PaymentOrderRepositoryInterface $paymentOrderRepository,
+        protected WebhookService $webhookService
+    ) {}
+
     public function createOrder($merchant, array $data)
     {
+        if (!$merchant) {
+            throw new Exception('Merchant not found');
+        }
+
         $data['merchant_id'] = $merchant->id;
-        $data['order_id'] = 'ORD-' . strtoupper(Str::random(12));
+        $data['order_id'] = ReferenceHelper::generate('ORD');
         $data['currency'] = $data['currency'] ?? 'INR';
         $data['status'] = 'pending';
 
-        return $this->paymentOrderRepository->create($data);
-    }
+        $order = $this->paymentOrderRepository->create($data);
 
-
-    public function verifyPayment(array $data)
-{
-    return DB::transaction(function () use ($data) {
-
-        $order = $this->paymentOrderRepository->findByOrderId(
-            $data['order_id']
+        $this->logAudit(
+            'PAYMENT_ORDER_CREATED',
+            $order,
+            [],
+            [
+                'order_id' => $order->order_id,
+                'merchant_id' => $order->merchant_id,
+                'amount' => $order->amount,
+                'currency' => $order->currency,
+                'status' => $order->status,
+            ]
         );
 
-        if ($order->status !== 'pending') {
-            throw new Exception('Payment order already processed');
-        }
-
-        $order->update([
-            'status' => $data['status'],
-            'payment_reference' => $data['payment_reference'],
-            'paid_at' => $data['status'] === 'success' ? now() : null,
-        ]);
-        $this->webhookService->dispatchPaymentWebhook($order);
-
         return $order;
-    });
-}
+    }
+
+    public function verifyPayment(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+
+            $order = $this->paymentOrderRepository->findByOrderId(
+                $data['order_id']
+            );
+
+            if ($order->status !== 'pending') {
+                throw new Exception('Payment order already processed');
+            }
+
+            $oldValues = [
+                'status' => $order->status,
+                'payment_reference' => $order->payment_reference,
+                'paid_at' => $order->paid_at,
+            ];
+
+            $order->update([
+                'status' => $data['status'],
+                'payment_reference' => $data['payment_reference'],
+                'paid_at' => $data['status'] === 'success'
+                    ? now()
+                    : null,
+            ]);
+
+            $this->logAudit(
+                'PAYMENT_VERIFIED',
+                $order,
+                $oldValues,
+                [
+                    'status' => $order->status,
+                    'payment_reference' => $order->payment_reference,
+                    'paid_at' => $order->paid_at,
+                ]
+            );
+
+            $this->webhookService->dispatchPaymentWebhook($order);
+
+            return $order->fresh();
+        });
+    }
 }

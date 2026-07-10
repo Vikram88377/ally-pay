@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Services\MerchantApiKeyService;
 use Illuminate\Http\Request;
+use App\Traits\ApiResponseTrait;
 use Exception;
 
 class MerchantApiKeyController extends Controller
 {
+    use ApiResponseTrait;
     public function __construct(
         protected MerchantApiKeyService $apiKeyService
     ) {}
@@ -20,17 +22,17 @@ class MerchantApiKeyController extends Controller
                 $request->user()->merchant
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Merchant API key fetched successfully',
-                'data' => $apiKey,
-            ]);
+            return $this->successResponse(
+                $apiKey,
+                'Merchant API key generated successfully',
+                201
+            );
 
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+                return $this->errorResponse(
+                    $e->getMessage(),
+                    400
+                );
         }
     }
 
