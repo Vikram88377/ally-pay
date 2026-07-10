@@ -14,7 +14,7 @@ use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
+use App\Http\Middleware\MerchantWebMiddleware;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         'role' => RoleMiddleware::class,
            'merchant.api' => VerifyMerchantApiKey::class,
             'admin.web' => AdminWebMiddleware::class,
+            'merchant.web' => MerchantWebMiddleware::class,
     ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

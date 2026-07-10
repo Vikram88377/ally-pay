@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MerchantApiKey;
 use App\Models\PaymentOrder;
+use App\Models\MerchantWebhookSetting;
 class Merchant extends Model
 {
     protected $fillable = [
@@ -31,5 +32,10 @@ public function paymentOrders()
     return $this->hasMany(PaymentOrder::class);
 }
 
-
+public function webhookSetting()
+{
+    return $this->hasOne(
+        MerchantWebhookSetting::class
+    );
+}
 }

@@ -9,7 +9,22 @@ class WebhookService
 {
     public function dispatchPaymentWebhook($paymentOrder)
     {
-        if (!$paymentOrder->callback_url) {
+        $paymentOrder->loadMissing('merchant.webhookSetting');
+
+        $merchantSetting = $paymentOrder->merchant?->webhookSetting;
+
+        $callbackUrl = $paymentOrder->callback_url
+            ?: $merchantSetting?->callback_url;
+
+        if (!$callbackUrl) {
+            return null;
+        }
+
+        if (
+            $merchantSetting &&
+            !$merchantSetting->is_active &&
+            !$paymentOrder->callback_url
+        ) {
             return null;
         }
 
@@ -26,7 +41,7 @@ class WebhookService
         $webhookEvent = WebhookEvent::create([
             'payment_order_id' => $paymentOrder->id,
             'event_type' => $payload['event'],
-            'callback_url' => $paymentOrder->callback_url,
+            'callback_url' => $callbackUrl,
             'payload' => $payload,
             'status' => 'pending',
         ]);
